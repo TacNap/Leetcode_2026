@@ -100,3 +100,4 @@
 /home/little/Repositories/leetcode_2026/leetcode_2026.Tests/obj/Debug/net10.0/leetcode_2026.Tests.pdb
 /home/little/Repositories/leetcode_2026/leetcode_2026.Tests/obj/Debug/net10.0/leetcode_2026.Tests.genruntimeconfig.cache
 /home/little/Repositories/leetcode_2026/leetcode_2026.Tests/obj/Debug/net10.0/ref/leetcode_2026.Tests.dll
+/home/little/Repositories/leetcode_2026/leetcode_2026.Tests/obj/Debug/net10.0/leetcode_2026.Tests.sourcelink.json
