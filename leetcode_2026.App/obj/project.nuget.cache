@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "rEI2YBR/uWI=",
+  "success": true,
+  "projectFilePath": "/home/little/Repositories/leetcode_2026/leetcode_2026.App/leetcode_2026.App.csproj",
+  "expectedPackageFiles": [
+    "/home/little/.nuget/packages/microsoft.aspnetcore.app.ref/10.0.0/microsoft.aspnetcore.app.ref.10.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
