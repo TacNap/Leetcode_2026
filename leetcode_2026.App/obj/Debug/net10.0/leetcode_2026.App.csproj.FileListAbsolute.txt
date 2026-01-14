@@ -12,3 +12,4 @@
 /home/little/Repositories/leetcode_2026/leetcode_2026.App/obj/Debug/net10.0/leetcode_2026.App.pdb
 /home/little/Repositories/leetcode_2026/leetcode_2026.App/obj/Debug/net10.0/leetcode_2026.App.genruntimeconfig.cache
 /home/little/Repositories/leetcode_2026/leetcode_2026.App/obj/Debug/net10.0/ref/leetcode_2026.App.dll
+/home/little/Repositories/leetcode_2026/leetcode_2026.App/obj/Debug/net10.0/leetcode_2026.App.sourcelink.json
