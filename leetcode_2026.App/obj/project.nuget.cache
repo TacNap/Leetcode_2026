@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "HbInBFLr9d8=",
+  "dgSpecHash": "oGlkjo9QwSw=",
   "success": true,
-  "projectFilePath": "/Users/matt/Documents/LocalRepos/Leetcode_2026/leetcode_2026.App/leetcode_2026.App.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "/home/little/Repositories/leetcode_2026/leetcode_2026.App/leetcode_2026.App.csproj",
+  "expectedPackageFiles": [
+    "/home/little/.nuget/packages/microsoft.aspnetcore.app.ref/10.0.4/microsoft.aspnetcore.app.ref.10.0.4.nupkg.sha512"
+  ],
   "logs": []
 }

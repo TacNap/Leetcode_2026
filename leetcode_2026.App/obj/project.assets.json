@@ -8,25 +8,24 @@
     "net10.0": []
   },
   "packageFolders": {
-    "/Users/matt/.nuget/packages/": {}
+    "/home/little/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/matt/Documents/LocalRepos/Leetcode_2026/leetcode_2026.App/leetcode_2026.App.csproj",
+      "projectUniqueName": "/home/little/Repositories/leetcode_2026/leetcode_2026.App/leetcode_2026.App.csproj",
       "projectName": "leetcode_2026.App",
-      "projectPath": "/Users/matt/Documents/LocalRepos/Leetcode_2026/leetcode_2026.App/leetcode_2026.App.csproj",
-      "packagesPath": "/Users/matt/.nuget/packages/",
-      "outputPath": "/Users/matt/Documents/LocalRepos/Leetcode_2026/leetcode_2026.App/obj/",
+      "projectPath": "/home/little/Repositories/leetcode_2026/leetcode_2026.App/leetcode_2026.App.csproj",
+      "packagesPath": "/home/little/.nuget/packages/",
+      "outputPath": "/home/little/Repositories/leetcode_2026/leetcode_2026.App/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/matt/.nuget/NuGet/NuGet.Config"
+        "/home/little/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
       ],
       "sources": {
-        "/opt/homebrew/Cellar/dotnet/10.0.102/libexec/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -61,12 +60,18 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
+        "downloadDependencies": [
+          {
+            "name": "Microsoft.AspNetCore.App.Ref",
+            "version": "[10.0.4, 10.0.4]"
+          }
+        ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/opt/homebrew/Cellar/dotnet/10.0.102/libexec/sdk/10.0.102/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.104/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.CSharp": "(,4.7.32767]",
           "Microsoft.VisualBasic": "(,10.4.32767]",
