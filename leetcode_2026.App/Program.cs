@@ -3,6 +3,17 @@
 
 using leetcode_2026.App.Problems.Arrays;
 
-var solution = new TwoSum();
-var result = solution.Solve([2, 7, 11, 15], 9);
-Console.WriteLine($"Result: [{string.Join(", ", result)}]");
+var solution = new _3Sum();
+
+var result = solution.Solve([-1, 0, 1, 2, -1, -4]);
+Console.WriteLine(
+    $"Result: [{string.Join(", ", result.Select(r => $"[{string.Join(", ", r)}]"))}]"
+);
+result = solution.Solve([0, 0, 0]);
+Console.WriteLine(
+    $"Result: [{string.Join(", ", result.Select(r => $"[{string.Join(", ", r)}]"))}]"
+);
+result = solution.Solve([0, 0, 0, 0]);
+Console.WriteLine(
+    $"Result: [{string.Join(", ", result.Select(r => $"[{string.Join(", ", r)}]"))}]"
+);
