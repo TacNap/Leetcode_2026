@@ -11,3 +11,7 @@ result = solution.Solve([1, 2, 1]);
 Console.WriteLine(result);
 result = solution.Solve([1, 8, 6, 2, 5, 4, 8, 25, 7]);
 Console.WriteLine(result);
+
+Console.WriteLine("Other C# tings");
+var notes = new ArrayNotes();
+notes.Copying();
