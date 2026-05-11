@@ -65,4 +65,34 @@ public class StringNotes
         string result = sb.ToString();
         Console.WriteLine(result);
     }
+
+    public void Looping()
+    {
+        string vowels = "aeiouAEIOU";
+        string pattern = "hhhhahhhhhehhhhihhhOhhhhU";
+
+        int count = 0;
+        foreach (char c in pattern)
+        {
+            if (vowels.Contains(c))
+            {
+                count++;
+            }
+        }
+        Console.WriteLine($"Count: {count}");
+
+        pattern = "apple";
+        string superstring = "asdkljflwkjrapple";
+        int upperLimit = superstring.Length - pattern.Length;
+        for (int i = 0; i <= upperLimit; i++)
+        {
+            if (superstring[i] == pattern[0])
+            {
+                if (superstring.Substring(i, pattern.Length) == pattern)
+                {
+                    Console.WriteLine("Match Found");
+                }
+            }
+        }
+    }
 }

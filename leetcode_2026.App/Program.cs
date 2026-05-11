@@ -14,4 +14,5 @@ Console.WriteLine(result);
 
 Console.WriteLine("Other C# tings");
 var notes = new StringNotes();
-notes.Methods();
+
+notes.Looping();
