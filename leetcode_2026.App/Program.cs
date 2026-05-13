@@ -3,16 +3,10 @@
 
 using leetcode_2026.App.Problems.Arrays;
 
-var solution = new MostWater();
+var solution = new TrappingRainWater();
 
-var result = solution.Solve([1, 8, 6, 2, 5, 4, 8, 3, 7]);
-Console.WriteLine(result);
-result = solution.Solve([1, 2, 1]);
-Console.WriteLine(result);
-result = solution.Solve([1, 8, 6, 2, 5, 4, 8, 25, 7]);
-Console.WriteLine(result);
+var result = solution.Solve([0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]);
+Console.WriteLine(result); // should be 6
 
-Console.WriteLine("Other C# tings");
-var notes = new StringNotes();
-
-notes.Looping();
+result = solution.Solve([4, 2, 0, 3, 2, 5]);
+Console.WriteLine(result); // should be 9
