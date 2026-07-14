@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stacks: A Field Guide to Unfinished Business</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2333; --border:#2d3748;
+    --text:#e6edf3; --dim:#8b949e; --amber:#ffb454; --green:#7ee787;
+    --red:#ff7b72; --blue:#79c0ff; --purple:#d2a8ff; --mono:'SF Mono',Consolas,'Fira Code',monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; line-height:1.65;}
+  .wrap{max-width:880px; margin:0 auto; padding:40px 24px 120px;}
+  header{padding:70px 0 40px; text-align:center;}
+  header h1{font-size:2.4rem; letter-spacing:-0.5px;}
+  header .sub{color:var(--dim); font-size:1.1rem; margin-top:12px; max-width:620px; margin-left:auto; margin-right:auto;}
+  .tag{display:inline-block; font-family:var(--mono); font-size:.75rem; color:var(--amber); border:1px solid var(--amber); border-radius:20px; padding:2px 12px; margin-bottom:18px; opacity:.85;}
+  section{margin-top:64px;}
+  h2{font-size:1.5rem; margin-bottom:6px;}
+  h2 .num{color:var(--amber); font-family:var(--mono); font-size:1.1rem; margin-right:10px;}
+  h3{font-size:1.05rem; margin:20px 0 8px; color:var(--blue);}
+  p{margin:12px 0; color:#c9d1d9;}
+  em{color:var(--amber); font-style:normal; font-weight:600;}
+  code{font-family:var(--mono); font-size:.88em; background:var(--panel2); padding:2px 6px; border-radius:5px; color:var(--green);}
+  .demo{background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:20px; margin:20px 0;}
+  .demo-title{font-family:var(--mono); font-size:.75rem; text-transform:uppercase; letter-spacing:1.5px; color:var(--dim); margin-bottom:14px;}
+  .controls{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:16px;}
+  button{background:var(--panel2); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:7px 16px; font-size:.9rem; cursor:pointer; font-family:inherit; transition:all .15s;}
+  button:hover{border-color:var(--amber); color:var(--amber);}
+  button.primary{background:var(--amber); color:#0d1117; border-color:var(--amber); font-weight:600;}
+  button.primary:hover{opacity:.85;}
+  button:disabled{opacity:.35; cursor:default;}
+  button:disabled:hover{border-color:var(--border); color:var(--text);}
+  input[type=text]{background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); padding:7px 12px; font-family:var(--mono); font-size:.9rem; min-width:0;}
+  input[type=text]:focus{outline:none; border-color:var(--blue);}
+  .msg{font-family:var(--mono); font-size:.85rem; background:var(--bg); border-left:3px solid var(--amber); border-radius:0 8px 8px 0; padding:10px 14px; min-height:42px; color:#c9d1d9;}
+  .msg.good{border-left-color:var(--green); color:var(--green);}
+  .msg.bad{border-left-color:var(--red); color:var(--red);}
+  .stage{display:flex; gap:28px; align-items:flex-end; margin:18px 0; flex-wrap:wrap;}
+  .stack-col{display:flex; flex-direction:column-reverse; gap:5px; min-height:180px; min-width:96px; justify-content:flex-start; border-bottom:3px solid var(--border); padding-bottom:5px;}
+  .stack-label{font-family:var(--mono); font-size:.7rem; color:var(--dim); text-align:center; margin-top:6px; text-transform:uppercase; letter-spacing:1px;}
+  .cell{background:var(--panel2); border:1px solid var(--blue); color:var(--blue); font-family:var(--mono); border-radius:7px; padding:7px 0; text-align:center; min-width:96px; font-size:.95rem; animation:pop-in .18s ease-out;}
+  .cell.top{border-color:var(--amber); color:var(--amber); box-shadow:0 0 12px rgba(255,180,84,.15);}
+  @keyframes pop-in{from{transform:translateY(-10px); opacity:0;} to{transform:none; opacity:1;}}
+  .strip{display:flex; gap:4px; flex-wrap:wrap; margin:14px 0; font-family:var(--mono);}
+  .ch{border:1px solid var(--border); border-radius:6px; padding:5px 9px; font-size:1rem; color:var(--dim); background:var(--bg);}
+  .ch.cur{border-color:var(--amber); color:var(--amber); background:rgba(255,180,84,.1); transform:scale(1.12);}
+  .ch.done{color:var(--text);}
+  .ch .idx{display:block; font-size:.6rem; color:var(--dim); text-align:center;}
+  .arr{display:flex; gap:4px; flex-wrap:wrap; margin:14px 0; font-family:var(--mono);}
+  .arr .ch{min-width:44px; text-align:center;}
+  .ch.answered{border-color:var(--green); color:var(--green);}
+  .grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px; margin:20px 0;}
+  .card{background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:18px;}
+  .card h4{color:var(--purple); margin-bottom:8px; font-size:1rem;}
+  .card p{font-size:.9rem; margin:6px 0;}
+  table{width:100%; border-collapse:collapse; margin:20px 0; font-size:.9rem;}
+  th{text-align:left; color:var(--amber); font-family:var(--mono); font-size:.75rem; text-transform:uppercase; letter-spacing:1px; padding:10px 12px; border-bottom:2px solid var(--border);}
+  td{padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:top;}
+  td:first-child{color:var(--blue); font-weight:500;}
+  td code{white-space:nowrap;}
+  .pull{border-left:3px solid var(--purple); padding:6px 18px; margin:22px 0; color:var(--purple); font-size:1.05rem; font-style:italic;}
+  svg text{font-family:var(--mono);}
+  .foot{margin-top:80px; text-align:center; color:var(--dim); font-size:.9rem; border-top:1px solid var(--border); padding-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="tag">LEETCODE 2026 · LESSON</div>
+  <h1>Stacks: A Field Guide to Unfinished Business</h1>
+  <p class="sub">You know LIFO. Plates, Pringles, pancakes — fine. Here's what the plate metaphor hides: a stack isn't really about storage. It's about <b>deferral</b> — a disciplined way of saying <i>"I can't deal with you yet"</i> and always knowing exactly what to deal with next.</p>
+</header>
+
+<!-- ============ 0. PLAYGROUND ============ -->
+<section id="s0">
+  <h2><span class="num">§0</span>The Obligatory Playground</h2>
+  <p>Thirty seconds of ritual before the good stuff. Push things, pop things, feel the LIFO. Note the only element you can ever <i>see</i> is the top — a stack has the memory of an elephant and the attention span of a goldfish.</p>
+  <div class="demo">
+    <div class="demo-title">Interactive · push / pop</div>
+    <div class="controls">
+      <input type="text" id="pg-in" placeholder="value" size="8" maxlength="6">
+      <button class="primary" onclick="pgPush()">push()</button>
+      <button onclick="pgPop()">pop()</button>
+      <button onclick="pgPeek()">peek()</button>
+    </div>
+    <div class="stage">
+      <div><div class="stack-col" id="pg-stack"></div><div class="stack-label">the stack</div></div>
+    </div>
+    <div class="msg" id="pg-msg">Both operations are O(1). That price tag is the entire business model.</div>
+  </div>
+</section>
+
+<!-- ============ 1. CALL STACK ============ -->
+<section id="s1">
+  <h2><span class="num">§1</span>You Are Already Running On One</h2>
+  <p>Every recursive function you've ever written was secretly a stack program. When <code>fact(4)</code> calls <code>fact(3)</code>, the machine shoves <code>fact(4)</code>'s unfinished business — its variables, its place in the code — onto the <em>call stack</em> and moves on. When <code>fact(1)</code> finally returns, the stack unwinds, and each parked frame resumes exactly where it left off.</p>
+  <p>This is the master key: <em>recursion is just a stack you didn't have to write</em>. Which means any recursion — DFS, tree traversal, backtracking — can be converted into a loop plus an explicit stack. Interviewers love asking for this conversion, and now you know it's not a trick, it's a translation.</p>
+  <div class="demo">
+    <div class="demo-title">Stepper · the call stack running fact(4)</div>
+    <div class="controls">
+      <button onclick="csStep(-1)" id="cs-prev">◀ prev</button>
+      <button class="primary" onclick="csStep(1)" id="cs-next">next ▶</button>
+      <button onclick="csReset()">reset</button>
+    </div>
+    <div class="stage">
+      <div><div class="stack-col" id="cs-stack"></div><div class="stack-label">call stack</div></div>
+    </div>
+    <div class="msg" id="cs-msg"></div>
+  </div>
+  <p class="pull">"Stack overflow" isn't a website. It's what happens when your unfinished business outgrows the room reserved for it.</p>
+</section>
+
+<!-- ============ 2. MATCHING ============ -->
+<section id="s2">
+  <h2><span class="num">§2</span>Matching: Every Opener Is a Promise</h2>
+  <p>The gateway drug of stack problems. An opening bracket is a <em>promise</em> — someone, eventually, must close it. And because brackets nest, promises must be honored in reverse order of creation. Last promise made, first promise kept. That sentence <i>is</i> a stack.</p>
+  <p>The algorithm falls out for free: see an opener, push it. See a closer, it must match the top — pop. Anything else, or anything left over at the end, means a broken promise.</p>
+  <div class="demo">
+    <div class="demo-title">Stepper · valid parentheses — try your own input</div>
+    <div class="controls">
+      <input type="text" id="pr-in" value="{[()]}(]" size="16">
+      <button onclick="prLoad()">load</button>
+      <button onclick="prStep(-1)" id="pr-prev">◀ prev</button>
+      <button class="primary" onclick="prStep(1)" id="pr-next">next ▶</button>
+    </div>
+    <div class="strip" id="pr-strip"></div>
+    <div class="stage">
+      <div><div class="stack-col" id="pr-stack"></div><div class="stack-label">open promises</div></div>
+    </div>
+    <div class="msg" id="pr-msg"></div>
+  </div>
+  <p>This "nested structure" instinct scales far beyond brackets: HTML validators, compiler syntax checking, <code>Simplify Path</code>, <code>Decode String</code> — anything where things open, contain, and close.</p>
+</section>
+
+<!-- ============ 3. MONOTONIC ============ -->
+<section id="s3">
+  <h2><span class="num">§3</span>The Monotonic Stack: LeetCode's Favorite Weapon</h2>
+  <p>Here is the concept that turns medium problems into five-minute problems. A <em>monotonic stack</em> is a stack you keep sorted (say, decreasing) by evicting anything that would break the order before you push.</p>
+  <p>Why is eviction magical? Take <b>Daily Temperatures</b>: for each day, how long until a warmer one? The stack holds days still <i>waiting</i> for their answer. When a new temperature arrives and it's warmer than the day on top — <em>the moment of popping is the moment of discovery</em>. The popped day just met its answer. Every element is pushed once and popped once, so the whole thing is O(n), even with that nested-looking while loop. (That's amortized analysis wearing a fake mustache.)</p>
+  <div class="demo">
+    <div class="demo-title">Stepper · daily temperatures — stack holds indices of days still waiting</div>
+    <div class="controls">
+      <input type="text" id="mt-in" value="73,74,75,71,69,72,76,73" size="26">
+      <button onclick="mtLoad()">load</button>
+      <button onclick="mtStep(-1)" id="mt-prev">◀ prev</button>
+      <button class="primary" onclick="mtStep(1)" id="mt-next">next ▶</button>
+    </div>
+    <div class="arr" id="mt-arr"></div>
+    <div class="arr" id="mt-ans"></div>
+    <div class="stage">
+      <div><div class="stack-col" id="mt-stack"></div><div class="stack-label">waiting room</div></div>
+    </div>
+    <div class="msg" id="mt-msg"></div>
+  </div>
+  <p>Learn to hear the trigger phrase: <em>"next greater"</em>, <em>"previous smaller"</em>, <em>"nearest warmer"</em>, <em>"first element to the right that…"</em>. Any nearest-neighbor-by-comparison question in an array is a monotonic stack wearing a costume.</p>
+</section>
+
+<!-- ============ 4. HISTOGRAM ============ -->
+<section id="s4">
+  <h2><span class="num">§4</span>Boss Fight: Largest Rectangle in a Histogram</h2>
+  <p>The final exam of monotonic stacks, and a certified Hard. Given bar heights, find the biggest rectangle that fits. Brute force checks every pair of bars: O(n²). The stack does it in one pass.</p>
+  <p>Reframe: for each bar, ask <i>"how far can a rectangle of MY height stretch?"</i> It stretches until it hits a shorter bar on either side. So keep an <em>increasing</em> stack of bars still hoping to stretch further right. When a shorter bar arrives, hope dies — pop each taller bar, and at that instant you know both its boundaries: the new bar on the right, the stack neighbor on the left. Compute the area at the funeral.</p>
+  <div class="demo">
+    <div class="demo-title">Stepper · heights [2, 1, 5, 6, 2, 3] — answer is 10, watch it get found</div>
+    <div class="controls">
+      <button onclick="hgStep(-1)" id="hg-prev">◀ prev</button>
+      <button class="primary" onclick="hgStep(1)" id="hg-next">next ▶</button>
+      <button onclick="hgReset()">reset</button>
+    </div>
+    <svg id="hg-svg" viewBox="0 0 460 200" width="100%" style="max-width:460px"></svg>
+    <div class="stage">
+      <div><div class="stack-col" id="hg-stack"></div><div class="stack-label">still stretching</div></div>
+    </div>
+    <div class="msg" id="hg-msg"></div>
+  </div>
+  <p>If this clicks, you get <code>Trapping Rain Water</code>, <code>Maximal Rectangle</code>, and <code>Car Fleet</code> at a steep discount.</p>
+</section>
+
+<!-- ============ 5. EXPRESSIONS ============ -->
+<section id="s5">
+  <h2><span class="num">§5</span>Stacks That Read: Evaluating Expressions</h2>
+  <p>How does a machine compute <code>(3 + 4) * 2 - 7</code>? It doesn't see the whole expression like you do — it reads one token at a time, and it needs somewhere to park values whose fate isn't decided yet. Sound familiar?</p>
+  <p>In <em>postfix</em> notation (<code>3 4 + 2 * 7 -</code>), the rule is almost insultingly simple: number → push. Operator → pop two, compute, push the result. No parentheses, no precedence, no ambiguity. This is why compilers convert your infix code to postfix-like forms (via Dijkstra's <i>shunting-yard</i> algorithm — which is itself two stacks) and why the JVM is literally called a stack machine.</p>
+  <div class="demo">
+    <div class="demo-title">Stepper · postfix evaluation — (3 + 4) × 2 − 7</div>
+    <div class="controls">
+      <input type="text" id="px-in" value="3 4 + 2 * 7 -" size="18">
+      <button onclick="pxLoad()">load</button>
+      <button onclick="pxStep(-1)" id="px-prev">◀ prev</button>
+      <button class="primary" onclick="pxStep(1)" id="px-next">next ▶</button>
+    </div>
+    <div class="strip" id="px-strip"></div>
+    <div class="stage">
+      <div><div class="stack-col" id="px-stack"></div><div class="stack-label">operands</div></div>
+    </div>
+    <div class="msg" id="px-msg"></div>
+  </div>
+  <p>LeetCode incarnations: <code>Evaluate Reverse Polish Notation</code>, then the <code>Basic Calculator</code> trilogy, where you build the shunting yard yourself.</p>
+</section>
+
+<!-- ============ 6. DESIGN TRICKS ============ -->
+<section id="s6">
+  <h2><span class="num">§6</span>Party Tricks: Stacks Composing With Stacks</h2>
+  <p>A whole genre of problems asks you to build smarter structures out of dumb stacks. The recurring insight: <em>a second stack (or a second value per entry) can remember what one stack forgets</em>.</p>
+  <div class="grid2">
+    <div class="card">
+      <h4>Min Stack</h4>
+      <p>Support <code>getMin()</code> in O(1). Trick: with each value, also push <i>the min as of that moment</i>. Popping automatically restores history. The stack becomes a time machine for the minimum.</p>
+    </div>
+    <div class="card">
+      <h4>Queue From Two Stacks</h4>
+      <p>Two wrongs make a right: reversing a reversal gives FIFO. Pile pushes into stack A; when you need to dequeue, pour A into B and pop. Each element moves at most twice — amortized O(1).</p>
+    </div>
+    <div class="card">
+      <h4>Undo / Redo</h4>
+      <p>Ctrl+Z is two stacks. Actions push onto <i>undo</i>; undoing pops it and pushes onto <i>redo</i>; a fresh action nukes <i>redo</i> — which is why redo dies the moment you type after undoing.</p>
+    </div>
+    <div class="card">
+      <h4>String Surgery</h4>
+      <p>Building a string while occasionally deleting recent work? Stack. <code>Remove Adjacent Duplicates</code>, <code>Backspace String Compare</code>, <code>Remove K Digits</code> — the answer is always "keep a stack of survivors."</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7. CHEAT SHEET ============ -->
+<section id="s7">
+  <h2><span class="num">§7</span>When to Smell a Stack</h2>
+  <p>Read the problem. If any of these ring, reach for the stack before reaching for anything clever.</p>
+  <table>
+    <tr><th>The problem smells like…</th><th>Think</th><th>Classic problems</th></tr>
+    <tr><td>Things that open must close, nested-ly</td><td>Matching stack</td><td><code>20. Valid Parentheses</code>, <code>394. Decode String</code>, <code>71. Simplify Path</code></td></tr>
+    <tr><td>"Next/previous greater/smaller element"</td><td>Monotonic stack</td><td><code>739. Daily Temperatures</code>, <code>496/503. Next Greater</code>, <code>901. Stock Span</code></td></tr>
+    <tr><td>Best span/area bounded by a smaller element</td><td>Monotonic + pop-time math</td><td><code>84. Largest Rectangle</code>, <code>42. Trapping Rain Water</code>, <code>853. Car Fleet</code></td></tr>
+    <tr><td>Reading tokens left to right, fate pending</td><td>Operand/operator stacks</td><td><code>150. Reverse Polish</code>, <code>224/227. Basic Calculator</code></td></tr>
+    <tr><td>Recursion you must flatten, or explore-then-backtrack</td><td>Explicit call stack</td><td>Iterative DFS, <code>94. Inorder Traversal</code>, <code>341. Flatten Nested List</code></td></tr>
+    <tr><td>Build something, occasionally regret recent choices</td><td>Stack of survivors</td><td><code>402. Remove K Digits</code>, <code>1047. Remove Adjacent Dups</code>, <code>316. Remove Duplicate Letters</code></td></tr>
+    <tr><td>O(1) access to an extreme, or FIFO from LIFO</td><td>Augmented / paired stacks</td><td><code>155. Min Stack</code>, <code>232. Queue via Stacks</code></td></tr>
+  </table>
+  <p class="pull">One sentence to rule them all: <b>use a stack when the most recent unresolved thing is always the next thing you'll resolve.</b></p>
+  <p>That's the scene, set. Every stack problem you're about to meet is one of these seven smells — usually in a trench coat. Go pop some things.</p>
+</section>
+
+<div class="foot">Built for Matthew's LeetCode 2026 campaign · §3 and §4 are where the interview points live</div>
+</div>
+<script>
+/* ---------- shared helpers ---------- */
+function renderStack(id, items){
+  const el = document.getElementById(id); el.innerHTML = '';
+  items.forEach((v, k) => {
+    const d = document.createElement('div');
+    d.className = 'cell' + (k === items.length - 1 ? ' top' : '');
+    d.textContent = v; el.appendChild(d);
+  });
+}
+function setMsg(id, text, cls){
+  const el = document.getElementById(id);
+  el.textContent = text; el.className = 'msg' + (cls ? ' ' + cls : '');
+}
+function setBtns(p, idx, len){
+  document.getElementById(p + '-prev').disabled = idx <= 0;
+  document.getElementById(p + '-next').disabled = idx >= len - 1;
+}
+const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
+
+/* ---------- §0 playground ---------- */
+const pg = { st: [] };
+function pgPush(){
+  const inp = document.getElementById('pg-in');
+  let v = inp.value.trim() || ['42', 'x', '3.14', '"hi"', '🥞', '7'][Math.floor(Math.random() * 6)];
+  if (pg.st.length >= 7){ setMsg('pg-msg', 'Stack overflow! In an interview this is a bug; in production it is a pager alert; here it is a life lesson.', 'bad'); return; }
+  pg.st.push(v); inp.value = '';
+  renderStack('pg-stack', pg.st);
+  setMsg('pg-msg', `push(${v}) — O(1). The old top is now invisible. Out of sight, still on the mind.`);
+}
+function pgPop(){
+  if (!pg.st.length){ setMsg('pg-msg', 'pop() on an empty stack. Some languages throw; C just ruins your week.', 'bad'); return; }
+  const v = pg.st.pop();
+  renderStack('pg-stack', pg.st);
+  setMsg('pg-msg', `pop() → ${v}. Gone. The element below never even knew it was covered.`);
+}
+function pgPeek(){
+  if (!pg.st.length){ setMsg('pg-msg', 'peek() → nothing. An empty stack keeps no secrets.'); return; }
+  setMsg('pg-msg', `peek() → ${pg.st[pg.st.length - 1]}. Look, don't touch.`);
+}
+
+/* ---------- §1 call stack ---------- */
+const csSteps = (() => {
+  const s = [], st = [];
+  s.push({ st: [], m: 'Someone calls fact(4). Watch the machine procrastinate productively.' });
+  for (let n = 4; n >= 1; n--){
+    st.push('fact(' + n + ')');
+    s.push({ st: [...st], m: n > 1
+      ? `fact(${n}) can't answer without fact(${n - 1}). Push the frame — park the unfinished business.`
+      : `fact(1) is the base case. At last, a function with no follow-up questions.` });
+  }
+  let r = 1;
+  for (let n = 1; n <= 4; n++){
+    r *= n; st.pop();
+    s.push({ st: [...st], m: `fact(${n}) returns ${r}. Pop — ${n < 4 ? `fact(${n + 1}) wakes up mid-sentence and multiplies.` : 'stack empty. Final answer: 24.'}` });
+  }
+  return s;
+})();
+let csIdx = 0;
+function csRender(){
+  renderStack('cs-stack', csSteps[csIdx].st);
+  setMsg('cs-msg', csSteps[csIdx].m);
+  setBtns('cs', csIdx, csSteps.length);
+}
+function csStep(d){ csIdx = clamp(csIdx + d, 0, csSteps.length - 1); csRender(); }
+function csReset(){ csIdx = 0; csRender(); }
+
+/* ---------- §2 parentheses ---------- */
+let prSteps = [], prIdx = 0, prStr = '';
+function prLoad(){
+  prStr = document.getElementById('pr-in').value.slice(0, 24);
+  prSteps = []; const st = [], pairs = { ')': '(', ']': '[', '}': '{' };
+  prSteps.push({ st: [], i: -1, m: 'Loaded. Step through — each character gets judged.', cls: '' });
+  let failed = false;
+  for (let i = 0; i < prStr.length && !failed; i++){
+    const c = prStr[i];
+    if ('([{'.includes(c)){
+      st.push(c);
+      prSteps.push({ st: [...st], i, m: `'${c}' opens — push. A promise is made.`, cls: '' });
+    } else if (')]}'.includes(c)){
+      if (st.length && st[st.length - 1] === pairs[c]){
+        st.pop();
+        prSteps.push({ st: [...st], i, m: `'${c}' matches the top '${pairs[c]}' — pop. Promise kept.`, cls: '' });
+      } else {
+        prSteps.push({ st: [...st], i, m: `'${c}' arrives but the top is ${st.length ? `'${st[st.length - 1]}'` : 'nothing'}. Broken promise → INVALID.`, cls: 'bad' });
+        failed = true;
+      }
+    } else {
+      prSteps.push({ st: [...st], i, m: `'${c}' is a civilian. Ignore, move on.`, cls: '' });
+    }
+  }
+  if (!failed) prSteps.push({ st: [...st], i: prStr.length,
+    m: st.length ? `End of string, but ${st.length} promise(s) still open → INVALID.` : 'End of string, stack empty. Every promise kept → VALID.',
+    cls: st.length ? 'bad' : 'good' });
+  prIdx = 0; prRender();
+}
+function prRender(){
+  const s = prSteps[prIdx], strip = document.getElementById('pr-strip');
+  strip.innerHTML = '';
+  [...prStr].forEach((c, j) => {
+    const d = document.createElement('span');
+    d.className = 'ch' + (j === s.i ? ' cur' : j < s.i ? ' done' : '');
+    d.textContent = c; strip.appendChild(d);
+  });
+  renderStack('pr-stack', s.st);
+  setMsg('pr-msg', s.m, s.cls); setBtns('pr', prIdx, prSteps.length);
+}
+function prStep(d){ prIdx = clamp(prIdx + d, 0, prSteps.length - 1); prRender(); }
+
+/* ---------- §3 monotonic / daily temperatures ---------- */
+let mtSteps = [], mtIdx = 0, mtT = [];
+function mtLoad(){
+  mtT = document.getElementById('mt-in').value.split(',').map(x => parseInt(x.trim(), 10)).filter(n => !isNaN(n)).slice(0, 12);
+  const n = mtT.length, ans = Array(n).fill(0), st = [];
+  mtSteps = [];
+  mtSteps.push({ st: [], ans: [...ans], i: -1, m: 'Loaded. The stack holds indices of days still waiting for a warmer day.' });
+  for (let i = 0; i < n; i++){
+    while (st.length && mtT[st[st.length - 1]] < mtT[i]){
+      const j = st.pop(); ans[j] = i - j;
+      mtSteps.push({ st: [...st], ans: [...ans], i, m: `Day ${i} (${mtT[i]}°) is warmer than day ${j} (${mtT[j]}°) → pop day ${j}. It waited ${i - j} day(s). The answer appears at the moment of eviction.` });
+    }
+    st.push(i);
+    mtSteps.push({ st: [...st], ans: [...ans], i, m: `Day ${i} (${mtT[i]}°) joins the waiting room. The stack stays decreasing.` });
+  }
+  mtSteps.push({ st: [...st], ans: [...ans], i: n, m: `Done. ${st.length} day(s) never met a warmer day — they keep their 0. Each index pushed once, popped at most once: O(n) total.` });
+  mtIdx = 0; mtRender();
+}
+function mtRender(){
+  const s = mtSteps[mtIdx];
+  const arr = document.getElementById('mt-arr'); arr.innerHTML = '';
+  mtT.forEach((t, j) => {
+    const d = document.createElement('span');
+    d.className = 'ch' + (j === s.i ? ' cur' : '');
+    d.innerHTML = `<span class="idx">day ${j}</span>${t}°`; arr.appendChild(d);
+  });
+  const ansEl = document.getElementById('mt-ans'); ansEl.innerHTML = '';
+  mtT.forEach((_, j) => {
+    const d = document.createElement('span');
+    d.className = 'ch' + (s.ans[j] > 0 ? ' answered' : '');
+    d.innerHTML = `<span class="idx">wait</span>${s.ans[j]}`; ansEl.appendChild(d);
+  });
+  renderStack('mt-stack', s.st.map(j => `d${j} · ${mtT[j]}°`));
+  setMsg('mt-msg', s.m); setBtns('mt', mtIdx, mtSteps.length);
+}
+function mtStep(d){ mtIdx = clamp(mtIdx + d, 0, mtSteps.length - 1); mtRender(); }
+
+/* ---------- §4 largest rectangle ---------- */
+const hgH = [2, 1, 5, 6, 2, 3];
+const hgSteps = (() => {
+  const s = [], st = []; let best = 0;
+  s.push({ st: [], i: -1, best: 0, rect: null, m: 'Keep an increasing stack of bars still hoping to stretch further right.' });
+  for (let i = 0; i <= hgH.length; i++){
+    const cur = i < hgH.length ? hgH[i] : 0;
+    while (st.length && hgH[st[st.length - 1]] > cur){
+      const t = st.pop(), h = hgH[t];
+      const L = st.length ? st[st.length - 1] + 1 : 0;
+      const w = i - L, a = h * w, isBest = a > best;
+      best = Math.max(best, a);
+      s.push({ st: [...st], i, best, rect: { L, R: i - 1, h },
+        m: `${i < hgH.length ? `Bar ${i} (h=${cur})` : 'The end of the array (h=0)'} kills bar ${t}'s hope (h=${h}) → pop. It stretches cols ${L}–${i - 1}: ${h}×${w} = ${a}${isBest ? ' — new best!' : '.'}` });
+    }
+    if (i < hgH.length){
+      st.push(i);
+      s.push({ st: [...st], i, best, rect: null, m: `Bar ${i} (h=${hgH[i]}) pushes. Still hoping.` });
+    }
+  }
+  s.push({ st: [], i: hgH.length, best, rect: null, m: `Answer: ${best}. One pass — every bar pushed once, popped once.` });
+  return s;
+})();
+let hgIdx = 0;
+function hgRender(){
+  const s = hgSteps[hgIdx];
+  const bw = 56, gap = 12, x0 = 24, base = 170, sc = 24;
+  let out = '';
+  for (let j = 0; j < hgH.length; j++){
+    const x = x0 + j * (bw + gap), h = hgH[j] * sc, inSt = s.st.includes(j);
+    out += `<rect x="${x}" y="${base - h}" width="${bw}" height="${h}" rx="3" fill="${inSt ? '#1f3a5f' : '#2d3748'}" stroke="${j === s.i ? '#ffb454' : inSt ? '#79c0ff' : '#444c56'}" stroke-width="${j === s.i ? 2.5 : 1.5}"/>`;
+    out += `<text x="${x + bw / 2}" y="${base + 16}" fill="#8b949e" font-size="11" text-anchor="middle">${j} · h${hgH[j]}</text>`;
+  }
+  if (s.rect){
+    const x = x0 + s.rect.L * (bw + gap);
+    const w = (s.rect.R - s.rect.L + 1) * (bw + gap) - gap;
+    const h = s.rect.h * sc;
+    out += `<rect x="${x}" y="${base - h}" width="${w}" height="${h}" rx="3" fill="#ffb454" opacity="0.35" stroke="#ffb454" stroke-width="2"/>`;
+  }
+  if (s.i >= hgH.length && hgIdx < hgSteps.length - 1)
+    out += `<text x="452" y="${base - 6}" fill="#ff7b72" font-size="11" text-anchor="end">← end (h=0)</text>`;
+  out += `<text x="${x0}" y="20" fill="#7ee787" font-size="13">best area: ${s.best}</text>`;
+  document.getElementById('hg-svg').innerHTML = out;
+  renderStack('hg-stack', s.st.map(j => `${j} (h=${hgH[j]})`));
+  setMsg('hg-msg', s.m); setBtns('hg', hgIdx, hgSteps.length);
+}
+function hgStep(d){ hgIdx = clamp(hgIdx + d, 0, hgSteps.length - 1); hgRender(); }
+function hgReset(){ hgIdx = 0; hgRender(); }
+
+/* ---------- §5 postfix ---------- */
+let pxSteps = [], pxIdx = 0, pxTok = [];
+function pxLoad(){
+  pxTok = document.getElementById('px-in').value.trim().split(/\s+/).filter(Boolean).slice(0, 20);
+  pxSteps = []; const st = []; let err = false;
+  pxSteps.push({ st: [], i: -1, m: 'Loaded. Numbers park; operators settle accounts.', cls: '' });
+  for (let i = 0; i < pxTok.length && !err; i++){
+    const t = pxTok[i];
+    if (/^-?\d+(\.\d+)?$/.test(t)){
+      st.push(Number(t));
+      pxSteps.push({ st: [...st], i, m: `'${t}' is a number → push. Its fate is pending.`, cls: '' });
+    } else if (t.length === 1 && '+-*/'.includes(t)){
+      if (st.length < 2){
+        pxSteps.push({ st: [...st], i, m: `'${t}' needs two operands; the stack has ${st.length}. Malformed expression.`, cls: 'bad' });
+        err = true; break;
+      }
+      const b = st.pop(), a = st.pop();
+      const r = t === '+' ? a + b : t === '-' ? a - b : t === '*' ? a * b : a / b;
+      st.push(r);
+      pxSteps.push({ st: [...st], i, m: `'${t}' → pop ${b} and ${a}, compute ${a} ${t} ${b} = ${r}, push the result back.`, cls: '' });
+    } else {
+      pxSteps.push({ st: [...st], i, m: `'${t}' is neither number nor operator. Rejected.`, cls: 'bad' });
+      err = true;
+    }
+  }
+  if (!err) pxSteps.push({ st: [...st], i: pxTok.length,
+    m: st.length === 1 ? `Done. One value remains — the answer: ${st[0]}.` : `Done, but ${st.length} values remain on the stack. Malformed postfix.`,
+    cls: st.length === 1 ? 'good' : 'bad' });
+  pxIdx = 0; pxRender();
+}
+function pxRender(){
+  const s = pxSteps[pxIdx], strip = document.getElementById('px-strip');
+  strip.innerHTML = '';
+  pxTok.forEach((t, j) => {
+    const d = document.createElement('span');
+    d.className = 'ch' + (j === s.i ? ' cur' : j < s.i ? ' done' : '');
+    d.textContent = t; strip.appendChild(d);
+  });
+  renderStack('px-stack', s.st);
+  setMsg('px-msg', s.m, s.cls); setBtns('px', pxIdx, pxSteps.length);
+}
+function pxStep(d){ pxIdx = clamp(pxIdx + d, 0, pxSteps.length - 1); pxRender(); }
+
+/* ---------- boot ---------- */
+renderStack('pg-stack', pg.st);
+csReset(); prLoad(); mtLoad(); hgReset(); pxLoad();
+</script>
+</body>
+</html>

@@ -1,7 +1,4 @@
-namespace leetcode_2026.App.Problems.Arrays;
-
-using System.Collections;
-using System.Linq;
+namespace leetcode_2026.App.Problems.Stacks;
 
 /// <summary>
 /// Min Stack
@@ -11,27 +8,45 @@ public class EvalRPN
     //["4","13","5","/","+"]
     public int Solve(string[] tokens)
     {
-        Stack stack = new Stack(); // Only holds the index of some operator
+        Stack<int> stack = new Stack<int>();
         string[] operators = { "+", "-", "*", "/" };
 
-        // Push operators to the stack.
-        for (int i = tokens.Length - 1; i >= 0; i--)
+        // Iterate through input array
+        foreach (string token in tokens)
         {
-            if (tokens.Contains(tokens[i]))
+            // If token is a number
+            if (!Array.Exists(operators, t => t == token))
             {
-                stack.Push(i);
+                stack.Push(int.Parse(token));
+            }
+            else
+            {
+                // token is an operator
+                int b = stack.Pop();
+                int a = stack.Pop();
+                int x = 0;
+
+                if (token == "+")
+                {
+                    x = a + b;
+                }
+                else if (token == "-")
+                {
+                    x = a - b;
+                }
+                else if (token == "*")
+                {
+                    x = a * b;
+                }
+                else if (token == "/")
+                {
+                    x = a / b;
+                }
+
+                stack.Push(x);
             }
         }
 
-        // While stack != empty, opIndex = Pop()
-        while (stack.Count != 0)
-        {
-            // int opIndex = stack.Pop();
-        }
-        // string operator = tokens[opIndex];
-        // int op1 = tokens[opIndex-2].ToInt();
-        // int op2 = tokens[opIndex-1].ToInt();
-
-        return 0;
+        return stack.Pop();
     }
 }
